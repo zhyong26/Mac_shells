@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# ==========================================
+# 工具名称: img-compress
+# 核心引擎: Google cwebp / libavif
+# ==========================================
+
+# --- 参数配置 ---
+QUALITY=75          # 压缩质量 (0-100)，推荐 75
+OUTPUT_FORMAT="webp" # 可选: webp, avif (avif 压缩率更高但处理较慢)
+# ----------------
+
+# 检查依赖
+if ! command -v cwebp &> /dev/null; then
+    echo "错误: 未找到 cwebp。请执行 'brew install webp'"
+    exit 1
+fi
+
+if [ "$#" -eq 0 ]; then
+    echo "用法: $0 <图片文件1> <图片文件2> ..."
+    exit 1
+fi
+
+echo "--- 开始压缩任务 (目标格式: $OUTPUT_FORMAT) ---"
+
+for img in "$@"; do
+    if [ ! -f "$img" ]; then continue; fi
+
+    # 获取基础信息
+    dir=$(dirname "$img")
+    base_name=$(basename "$img")
+    filename="${base_name%.*}"
+    output="${dir}/${filename}.${OUTPUT_FORMAT}"
+    
+    # 记录原始大小
+    old_size=$(stat -f%z "$img")
+
+    # 执行压缩
+    if [ "$OUTPUT_FORMAT" = "webp" ]; then
+        cwebp -q $QUALITY "$img" -o "$output" -quiet
+    elif [ "$OUTPUT_FORMAT" = "avif" ]; then
+        avifenc --jobs all --quality $QUALITY "$img" "$output" > /dev/null 2>&1
+    fi
+
+    # 计算结果
+    if [ -f "$output" ]; then
+        new_size=$(stat -f%z "$output")
+        reduction=$(( (old_size - new_size) * 100 / old_size ))
+        
+        # 格式化输出数据
+        echo "✅ $base_name | 原大小: $((old_size/1024))KB | 现大小: $((new_size/1024))KB | 缩小: ${reduction}%"
+    else
+        echo "❌ $base_name 处理失败"
+    fi
+done
+
+echo "--- 任务处理完毕 ---"

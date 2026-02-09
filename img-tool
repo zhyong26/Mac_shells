@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# ==========================================
+# 工具名称: img-tool (修正版)
+# 核心引擎: ImageMagick + Google cwebp/libavif
+# ==========================================
+
+# --- 核心配置 ---
+CHOP_BOTTOM=30        
+QUALITY=75             
+MAX_WIDTH=1920        
+OUTPUT_FORMAT="webp"   
+# ----------------
+
+# 检查依赖
+for cmd in magick cwebp avifenc; do
+    if ! command -v $cmd &> /dev/null; then
+        echo "缺少组件: $cmd。请执行: brew install imagemagick webp libavif"
+        exit 1
+    fi
+done
+
+if [ "$#" -eq 0 ]; then
+    echo "用法: img-tool <图片1> <图片2> ..."
+    exit 1
+fi
+
+echo "--- 开始处理 (裁切 + $OUTPUT_FORMAT 压缩) ---"
+
+for img in "$@"; do
+    if [ ! -f "$img" ]; then continue; fi
+
+    dir=$(dirname "$img")
+    base_name=$(basename "$img")
+    filename="${base_name%.*}"
+    output="${dir}/${filename}.${OUTPUT_FORMAT}"
+    old_size=$(stat -f%z "$img")
+
+    # 核心流处理修正：
+    if [ "$OUTPUT_FORMAT" = "webp" ]; then
+        # 显式使用 TIFF 格式中转，这是管道传输中最兼容的位图格式
+        # cwebp 使用 '-' 表示从 stdin 读取
+        magick "$img" -gravity South -chop 0x$CHOP_BOTTOM -resize "$MAX_WIDTHx>" tiff:- | \
+        cwebp -q $QUALITY -o "$output" -- - 2>/dev/null
+    elif [ "$OUTPUT_FORMAT" = "avif" ]; then
+        # avifenc 使用 'stdin' 作为占位符
+        magick "$img" -gravity South -chop 0x$CHOP_BOTTOM -resize "$MAX_WIDTHx>" tiff:- | \
+        avifenc --jobs all --quality $QUALITY stdin "$output" > /dev/null 2>&1
+    fi
+
+    # 计算结果
+    if [ -s "$output" ]; then
+        new_size=$(stat -f%z "$output")
+        reduction=$(( (old_size - new_size) * 100 / old_size ))
+        echo "✅ $base_name | 已去水印 | 体积减少: ${reduction}%"
+    else
+        echo "❌ $base_name 处理失败 (请检查图片格式是否受支持)"
+        [ -f "$output" ] && rm "$output"
+    fi
+done
