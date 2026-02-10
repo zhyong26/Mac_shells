@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# ==========================================
+# 工具名称: qwen-append (修复版)
+# 功能: MD 内容 -> 通义千问 API 总结 -> 追加至文件末尾
+# ==========================================
+
+# --- 配置区域 ---
+API_KEY="您的_DASHSCOPE_API_KEY"
+MODEL="qwen-plus"
+# ----------------
+
+if [ "$#" -eq 0 ]; then
+    echo "用法: qwen-append <文件名.md>"
+    exit 1
+fi
+
+FILE="$1"
+if [ ! -f "$FILE" ]; then
+    echo "❌ 错误: 文件不存在。"
+    exit 1
+fi
+
+# 检查依赖
+if ! command -v jq &> /dev/null; then
+    echo "❌ 错误: 请先安装 jq (brew install jq)"
+    exit 1
+fi
+
+echo "⏳ 正在分析文件: $FILE ..."
+
+# 1. 提取原始内容 (排除旧的总结区块)
+RAW_CONTENT=$(sed '/## AI 总结/,$d' "$FILE")
+
+# 2. 使用 jq 构建完美的 JSON 请求体 (自动处理转义)
+JSON_PAYLOAD=$(jq -n \
+  --arg model "$MODEL" \
+  --arg content "请对以下内容进行深度总结，并提取 3-5 个核心关键词作为标签（格式如 #标签）。内容如下：\n\n$RAW_CONTENT" \
+  '{
+    "model": $model,
+    "input": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "你是一位专业的知识管理助手。"
+        },
+        {
+          "role": "user",
+          "content": $content
+        }
+      ]
+    },
+    "parameters": {
+      "result_format": "message"
+    }
+  }')
+
+echo "🚀 正在调用 Qwen API ($MODEL)..."
+
+# 3. 发送请求并保存响应
+RESPONSE=$(curl -s -X POST https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "$JSON_PAYLOAD")
+
+# 4. 解析结果
+AI_OUTPUT=$(echo "$RESPONSE" | jq -r '.output.choices[0].message.content // empty')
+
+if [ -z "$AI_OUTPUT" ] || [ "$AI_OUTPUT" == "null" ]; then
+    echo "❌ API 调用失败。响应详情:"
+    echo "$RESPONSE" | jq .
+    exit 1
+fi
+
+# 5. 追加到文件末尾
+{
+  echo -e "\n"
+  echo "---"
+  echo "## AI 总结 (Qwen API)"
+  echo "生成时间: $(date '+%Y-%m-%d %H:%M:%S')"
+  echo ""
+  echo "$AI_OUTPUT"
+} >> "$FILE"
+
+echo "✅ 总结已成功追加至: $FILE"

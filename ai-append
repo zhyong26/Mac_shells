@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# ==========================================
+# 工具名称: ai-append
+# 功能: 读取现有 MD 文件内容 -> AI 总结 -> 追加到原文件末尾
+# 依赖: ollama (qwen2.5)
+# ==========================================
+
+# --- 核心配置 ---
+MODEL="qwen2.5:7b"
+# ----------------
+
+if [ "$#" -eq 0 ]; then
+    echo "用法: ai-append <文件名.md>"
+    exit 1
+fi
+
+FILE="$1"
+
+if [ ! -f "$FILE" ]; then
+    echo "❌ 错误: 文件 $FILE 不存在。"
+    exit 1
+fi
+
+echo "⏳ 正在读取并分析内容: $FILE ..."
+
+# 1. 提取文件内容（排除掉可能已经存在的 AI 总结区块，避免循环总结）
+# 这里假设 AI 总结区块始于 "---" 之后的 "## AI 总结"
+CONTENT=$(sed '/## AI 总结/,$d' "$FILE")
+
+# 2. 构建 AI 提示词
+PROMPT="你是一位专业的知识管理助手。请对以下内容进行深度总结，提取核心观点并列出关键点。请使用 Markdown 格式，要求逻辑清晰。内容如下：\n\n$CONTENT"
+
+# 3. 调用 Ollama 生成总结
+echo "🤖 AI ($MODEL) 正在思考..."
+SUMMARY=$(echo -e "$PROMPT" | ollama run "$MODEL")
+
+# 4. 将总结追加到原文件末尾
+{
+  echo -e "\n"
+  echo "---"
+  echo "## AI 总结"
+  echo "生成时间: $(date '+%Y-%m-%d %H:%M:%S')"
+  echo "模型版本: $MODEL"
+  echo ""
+  echo "$SUMMARY"
+} >> "$FILE"
+
+if [ $? -eq 0 ]; then
+    echo "✅ 总结已成功追加到: $FILE"
+else
+    echo "❌ 处理失败。"
+fi
