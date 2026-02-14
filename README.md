@@ -41,3 +41,12 @@ ollama run qwen2.5:7b
 ```
 brew install jq
 ```
+
+# 词云图
+功能：汇总多文件高频词分析，支持停用词、手动排除及跳过前N个高频词
+文件：`get_word_cloud.py`
+分词文件：https://github.com/goto456/stopwords
+安装环境：
+```python
+pip install jieba wordcloud matplotlib
+```
