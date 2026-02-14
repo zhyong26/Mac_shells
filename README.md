@@ -50,3 +50,20 @@ brew install jq
 ```python
 pip install jieba wordcloud matplotlib
 ```
+帮助文档：
+```
+usage: get_word_cloud.py [-h] [--font FONT] [--stop STOP] [--exclude [EXCLUDE ...]] [--skip_top SKIP_TOP] filenames [filenames ...]
+
+多文件词频分析工具
+
+positional arguments:
+  filenames             文件路径
+
+options:
+  -h, --help            show this help message and exit
+  --font FONT           手动指定字体路径
+  --stop STOP           停用词路径
+  --exclude, -e [EXCLUDE ...]
+                        排除特定词
+  --skip_top SKIP_TOP   跳过前N个词
+```
