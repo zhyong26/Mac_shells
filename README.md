@@ -89,7 +89,7 @@ options:
 - 动态路径支持：支持在执行命令时实时输入目标路径，兼容 ~（家目录）及 .（当前目录）等快捷路径符。
 
 # 使用 Python 脚本一键上传图片到兰空图床并自动复制链接
-脚本名称：`upload_lsky.py`
+脚本名称：`python_shells/upload_lsky.py`
 
 这个脚本旨在实现一个目标：以最快速度将本地图片转换为可用的网络链接。
 
@@ -100,3 +100,7 @@ options:
 - 安全鉴权：使用 Lsky Pro V2 标准的 API Token 进行验证，无需暴露账号密码。
 
 具体使用方法见：[使用 Python 脚本一键上传图片到兰空图床并自动复制链接 | 材料与逻辑](https://zhyong.site/posts/445e.html)
+
+# Python 自动化实践：Typora 自定义上传接口与兰空图床集成
+脚本名称：`python_shells/typora_upload.py`
+具体使用方法：[Python 自动化实践：Typora 自定义上传接口与兰空图床集成 | 材料与逻辑](https://zhyong.site/posts/36e9.html)
