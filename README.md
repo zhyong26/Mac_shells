@@ -104,3 +104,9 @@ options:
 # Python 自动化实践：Typora 自定义上传接口与兰空图床集成
 脚本名称：`python_shells/typora_upload.py`
 具体使用方法：[Python 自动化实践：Typora 自定义上传接口与兰空图床集成 | 材料与逻辑](https://zhyong.site/posts/36e9.html)
+
+# 通过 rclone 自动备份 Lsky Pro（兰空图床）数据至 OneDrive
+
+脚本名称：`shell_scripts/lsky_backup.sh`
+
+使用教程：[通过 rclone 自动备份 Lsky Pro（兰空图床）数据至 OneDrive | 材料与逻辑](https://zhyong.site/posts/70dc.html)
