@@ -110,3 +110,18 @@ options:
 脚本名称：`shell_scripts/lsky_backup.sh`
 
 使用教程：[通过 rclone 自动备份 Lsky Pro（兰空图床）数据至 OneDrive | 材料与逻辑](https://zhyong.site/posts/70dc.html)
+
+# 打开终端或执行清屏命令时显示一言
+脚本名称：`shell_scripts/hitokoto.sh`
+一言源文件：[hitokoto-osc/sentences-bundle: 一言开源社区官方提供的语句库，系 hitokoto.cn 数据库打包集合。语句接口默认使用此库。](https://github.com/hitokoto-osc/sentences-bundle)
+将脚本中的第4行更改为实际路径
+克隆或下载脚本文件，然后在`.zshrc`或`.bashrc`文件中加入
+```
+#打开终端时显示一言或按下c时执行
+bash ~/Project/local_shells/hitokoto.sh
+
+c(){
+    clear
+    bash ~/Project/local_shells/hitokoto.sh
+}
+```
