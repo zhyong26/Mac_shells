@@ -188,3 +188,8 @@ python your_script_name.py https://xxx -o my_gallery
 2. **合规使用**：请确保抓取行为符合目标网站的 `robots.txt` 协议及版权规定，仅限个人学习或研究使用。
 3. **防盗链说明**：脚本已内置 `Referer` 伪装，可应对多数博客平台的反爬策略。
 
+# 自动化工具：将 Markdown 文档转换为静态 PNG 思维导图脚本
+
+脚本名称：`python_shells/md2img.py`
+
+具体使用说明查看：[自动化工具：将 Markdown 文档转换为静态 PNG 思维导图脚本 | 材料与逻辑](https://zhyong.site/posts/f040.html)
