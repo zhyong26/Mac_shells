@@ -193,3 +193,12 @@ python your_script_name.py https://xxx -o my_gallery
 脚本名称：`python_shells/md2img.py`
 
 具体使用说明查看：[自动化工具：将 Markdown 文档转换为静态 PNG 思维导图脚本 | 材料与逻辑](https://zhyong.site/posts/f040.html)
+
+# Mac复制绝对路径到系统剪切板
+文件：`shell_scripts/get_path.sh`
+
+核心功能解释
+- 路径转换：自动将相对路径 / 简写路径（如 ~）转换为标准绝对路径，保证路径准确性；
+- 跨系统兼容：自动识别 macOS（pbcopy）和 Linux（xclip/xsel）的剪切板工具；
+- 错误处理：包含文件存在性检查、工具检测、执行结果验证，避免新手踩坑；
+- 友好提示：成功 / 失败都有清晰的可视化提示，直接显示复制的路径。
